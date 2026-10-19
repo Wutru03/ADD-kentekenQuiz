@@ -1,3 +1,40 @@
+# Kentekenquiz
+
+A Dutch licence-plate guessing game: the player types a plate, guesses the vehicle's stats, and scores 0-100 per stat. Live data from RDW Open Data (no key).
+
+- Expo Router, TanStack Query, expo-sqlite. Must run in Expo Go.
+- Screens in `src/app/`, data through hooks in `src/hooks/`, API and SQL in `src/services/`. Pure logic (plate normalising, real values, scoring) in `src/lib/`, without React.
+- Never force-push, squash or rewrite history. My git history is part of my hand-in.
+
+## Specs
+
+- `specs/product.md` says what the app is; `specs/features/*.md` say what each feature does. The spec is the source of truth: do not build what is not in it. If the spec is unclear or wrong, ask me, do not guess.
+- Each feature is one GitHub issue. Work on one issue per chat.
+
+## Workflow per issue
+
+1. Read the issue and its spec file. Touch only the files the issue needs.
+2. Post a plan with a `- [ ]` task list as a comment on the issue (`gh issue comment <n>`). Stop and wait for my go.
+3. Build in small steps and tick off the tasks on the issue.
+4. Run `npx expo lint` and `npx tsc --noEmit` before saying you are done.
+5. Explain what you built when I ask, line by line if needed.
+6. I commit myself with `closes #<n>`. Do not add AI attribution to commits.
+
+## Rules
+
+- Install a dependency only when the issue's spec names it, with `npx expo install`. Everything must work in Expo Go.
+- RDW returns every value as a string and an unknown plate as `[]`. Parse in the service, so hooks and screens get typed numbers and `null` for missing values.
+- Every query has a loading state and an error state with a "Try again" button (`src/components/error-view.tsx`).
+- UI text in English. RDW's Dutch values (Benzine, Elektriciteit, ...) are translated for display.
+- Clean TypeScript: no `any`, no `as` casts (`as const` is fine), no `@ts-ignore`, no non-null `!`.
+- No `console.log`, no warnings in the terminal or on screen.
+- All colours from `src/constants/theme.ts` through `useTheme()`, never hard-coded hex in a screen or component. Every screen must look right in light and dark mode.
+- Spacing and radius from `Spacing` and `Radius` in the theme.
+- Every pressable and input has an `accessibilityLabel`; layouts must survive the largest text size.
+- `tsc` needs `expo-env.d.ts`, which `npx expo start` generates. It is gitignored on purpose.
+
+---
+
 This is an Expo/React Native mobile application. Prioritize mobile-first patterns, performance, and cross-platform compatibility.
 
 ## Expo has changed — do not trust your training data
