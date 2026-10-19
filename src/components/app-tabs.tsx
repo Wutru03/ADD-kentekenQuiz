@@ -13,15 +13,16 @@ export default function AppTabs() {
       indicatorColor={colors.backgroundElement}
       labelStyle={{ selected: { color: colors.text } }}>
       <NativeTabs.Trigger name="index">
-        <NativeTabs.Trigger.Label>Items</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/home.png')}
-          renderingMode="template"
-        />
+        <NativeTabs.Trigger.Label>Play</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf="car.fill" md="directions_car" />
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="bag">
-        <NativeTabs.Trigger.Label>Bag</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon sf="bag.fill" md="shopping_bag" />
+      <NativeTabs.Trigger name="history">
+        <NativeTabs.Trigger.Label>History</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf="list.bullet" md="history" />
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="map">
+        <NativeTabs.Trigger.Label>Map</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf="map.fill" md="map" />
       </NativeTabs.Trigger>
     </NativeTabs>
   );

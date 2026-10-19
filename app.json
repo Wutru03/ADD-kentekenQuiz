@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Pokedex",
-    "slug": "Pokedex",
+    "name": "Kentekenquiz",
+    "slug": "kentekenquiz",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "pokedex",
+    "scheme": "kentekenquiz",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon"

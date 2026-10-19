@@ -9,7 +9,7 @@ SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
 
-export default function TabLayout() {
+export default function RootLayout() {
   const colorScheme = useColorScheme();
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
@@ -17,10 +17,6 @@ export default function TabLayout() {
       <QueryClientProvider client={queryClient}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="item/[id]"
-            options={{ title: 'Item', headerBackButtonDisplayMode: 'minimal' }}
-          />
         </Stack>
       </QueryClientProvider>
     </ThemeProvider>
