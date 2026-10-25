@@ -13,7 +13,7 @@ A Dutch licence-plate guessing game: the player types a plate, guesses the vehic
 
 ## Workflow per issue
 
-1. Read the issue and its spec file. Touch only the files the issue needs.
+1. Read the issue and its spec file. Touch only the files the issue needs. `src/lib/` is always allowed for the issue's pure logic, even if my prompt does not list it.
 2. Post a plan with a `- [ ]` task list as a comment on the issue (`gh issue comment <n>`). Stop and wait for my go.
 3. Build in small steps and tick off the tasks on the issue.
 4. Run `npx expo lint` and `npx tsc --noEmit` before saying you are done.
@@ -25,7 +25,7 @@ A Dutch licence-plate guessing game: the player types a plate, guesses the vehic
 - Install a dependency only when the issue's spec names it, with `npx expo install`. Everything must work in Expo Go.
 - RDW returns every value as a string and an unknown plate as `[]`. Parse in the service, so hooks and screens get typed numbers and `null` for missing values.
 - Every query has a loading state and an error state with a "Try again" button (`src/components/error-view.tsx`).
-- UI text in English. RDW's Dutch values (Benzine, Elektriciteit, ...) are translated for display.
+- UI text in English. RDW's Dutch values (Personenauto, BLAUW, ...) are shown as-is; do not add translation unless the issue's spec asks for it.
 - Clean TypeScript: no `any`, no `as` casts (`as const` is fine), no `@ts-ignore`, no non-null `!`.
 - No `console.log`, no warnings in the terminal or on screen.
 - All colours from `src/constants/theme.ts` through `useTheme()`, never hard-coded hex in a screen or component. Every screen must look right in light and dark mode.
