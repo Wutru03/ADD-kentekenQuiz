@@ -7,8 +7,8 @@ each stat.
 
 ## Constraints
 
-- Second step of the Play stack, after a found vehicle (feature 1).
-- Sliders with `@react-native-community/slider` (install with `npx expo install`).
+- Second step of the Play stack, after a found vehicle (feature 1). The Play tab becomes a Stack; the found vehicle is passed to the guess screen as a JSON route param and checked with a type guard. An invalid param shows an error.
+- Every number stat is a plain number field (no sliders), so any exact value can be typed, also for vehicles far outside a normal car's range.
 - Which stats are asked, and their real values, come from pure logic in its own file (also used by feature 3). A stat whose real value is missing is not asked.
 - Real values, from the RDW data:
 
@@ -29,15 +29,15 @@ each stat.
 - [ ] The car's make and model are shown above the form.
 - [ ] Inputs per stat:
   - Year: number field, 1900 to the current year.
-  - Weight: slider 400-4000 kg (step 10) and a number field, kept in sync.
-  - Power: slider 0-800 pk (step 1) and a number field, kept in sync.
+  - Weight: number field, whole kg, 0 or more.
+  - Power: number field, whole pk, 0 or more.
   - Cylinder capacity: number field, 0.0-8.0 L (1 decimal).
-  - Cylinders: slider 0-16 (step 1) and a number field, kept in sync.
+  - Cylinders: number field, whole number, 0 or more.
   - Fuel: radio buttons Petrol, Diesel, Electric, LPG, Hybrid.
-- [ ] Sliders start in the middle of their range; number fields without a slider and fuel start empty.
-- [ ] A number outside its range is clamped to the nearest min or max (and moves its slider).
+- [ ] All number fields and fuel start empty.
+- [ ] When a field loses focus, a number outside its range is clamped to the nearest min or max and rounded to its step (whole number, or 1 decimal for litres).
 - [ ] Stats with a missing real value are not shown.
-- [ ] "Submit" is disabled until every shown stat has a value.
+- [ ] "Submit" is disabled until every shown stat has a value. What Submit does is feature 3.
 
 ## Out of Scope
 

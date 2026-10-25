@@ -13,7 +13,7 @@ Enter a plate and guess the car's stats.
 ## Features
 
 1. [Plate lookup](./features/01-plate-lookup.md): type a plate, see the vehicle, location captured.
-2. [Guess form](./features/02-guess-form.md): guess up to six stats with sliders, number fields and radio buttons.
+2. [Guess form](./features/02-guess-form.md): guess up to six stats with number fields and radio buttons.
 3. [Score and result](./features/03-score-result.md): real values next to your guesses, 0-100 per stat and a total; the round is saved.
 4. [History](./features/04-history.md): past rounds, high score, round detail, delete a round.
 5. [Map](./features/05-map.md): all rounds as pins on one map.

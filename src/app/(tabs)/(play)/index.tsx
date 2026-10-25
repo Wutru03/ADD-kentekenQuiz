@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -40,13 +41,11 @@ export default function PlayScreen() {
         <Text style={{ color: theme.textSecondary }}>
           {vehicle.colour} · {vehicle.vehicleType}
         </Text>
-        {/* Wired up to the guess form in #2. */}
         <Pressable
-          disabled
+          onPress={() => router.push({ pathname: '/guess', params: { vehicle: JSON.stringify(vehicle) } })}
           accessibilityLabel="Guess the stats"
-          accessibilityState={{ disabled: true }}
-          style={[styles.button, { backgroundColor: theme.backgroundSelected }]}>
-          <Text style={{ color: theme.textSecondary }}>Guess the stats</Text>
+          style={[styles.button, { backgroundColor: theme.badge }]}>
+          <Text style={{ color: theme.badgeText }}>Guess the stats</Text>
         </Pressable>
       </View>
     );
