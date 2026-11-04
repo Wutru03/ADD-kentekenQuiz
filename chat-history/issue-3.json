@@ -1,4 +1,4 @@
- ▐▛███▛█   Claude Code v2.1.316
+ ▐▛███▛█   Claude Code v2.1.318
 ▝▜██████▀  Opus 5.5 · Claude Pro
  ▝▝   ▝▝   ~/disk/projects/ADD_frontend_dev/ADD-kentekenQuiz
 
@@ -1010,3 +1010,55 @@
   (started 34m ago) already has Remote Control for this conversation, so
   this terminal can't see your sessions on other machines and they 
   can't reach it · run /remote-control to move it to this terminal
+
+● Remote Control not started here · another Claude Code on this machine 
+  (started 4h ago) already has Remote Control for this conversation, so 
+  this terminal can't see your sessions on other machines and they can't
+  reach it · run /remote-control to move it to this terminal
+
+❯ What is the difference between the use-save-round and the use-round hooks?    
+  ⎿  17 skills available
+
+● The two hooks are the two directions of the same table: one writes a round,
+  the other reads one back.
+
+  ┌───────────┬──────────────────────────────────────┬──────────────────────┐
+  │           │             useSaveRound             │     useRound(id)     │
+  ├───────────┼──────────────────────────────────────┼──────────────────────┤
+  │ TanStack  │ useMutation, which you trigger       │ useQuery, which runs │
+  │ type      │                                      │  by itself           │
+  ├───────────┼──────────────────────────────────────┼──────────────────────┤
+  │ When it   │ When you call save.mutate(round) on  │ When the result      │
+  │ runs      │ Submit                               │ screen opens         │
+  ├───────────┼──────────────────────────────────────┼──────────────────────┤
+  │ Service   │                                      │ getRound(db, id) (a  │
+  │ call      │ insertRound(db, round) (an INSERT)   │ SELECT ... WHERE id  │
+  │           │                                      │ = ?)                 │
+  ├───────────┼──────────────────────────────────────┼──────────────────────┤
+  │ Gives     │                                      │ The stored round, or │
+  │ back      │ The id of the new row                │  null if the id      │
+  │           │                                      │ doesn't exist        │
+  ├───────────┼──────────────────────────────────────┼──────────────────────┤
+  │ Used in   │ guess.tsx                            │ result.tsx           │
+  ├───────────┼──────────────────────────────────────┼──────────────────────┤
+  │           │ None of its own. It invalidates the  │ queryKey: ['round',  │
+  │ Cache     │ ['rounds'] queries after a save, so  │ id]                  │
+  │           │ the History list refetches           │                      │
+  └───────────┴──────────────────────────────────────┴──────────────────────┘
+
+  They fit together like this:
+  1. Submit calls save.mutate(round).
+  2. onSuccess gets the new id and calls router.replace to /result?id=<id>.
+  3. The result screen calls useRound(id), so it shows what is actually stored
+     in SQLite, not what was in memory.
+
+  Both get the database from useSQLiteContext() and pass it to the SQL functions
+  in src/services/rounds.ts. The hooks hold no SQL themselves.
+
+  The reason for a mutation on one side and a query on the other: a mutation is
+  for something you do once on demand, and it must not run again by itself,
+  which is why the double-tap guard lives around mutate. A query is for data you
+  want to display, and it comes with loading and error states, which the result
+  screen uses for its spinner and ErrorView.
+
+✻ Sautéed for 6s · done 6:35 PM
