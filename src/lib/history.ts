@@ -3,6 +3,11 @@ export function highScore(rounds: { total: number }[]): number | null {
   return rounds.length === 0 ? null : Math.max(...rounds.map((round) => round.total));
 }
 
+// RDW's trade name often starts with the make already ("NISSAN MICRA"), so the make is only added when it does not.
+export function carName(make: string, model: string): string {
+  return model.toLowerCase().startsWith(`${make.toLowerCase()} `) ? model : `${make} ${model}`;
+}
+
 // "4 Nov 2026, 14:05": English, day first, 24 hours, in the phone's time zone.
 export function formatPlayedAt(iso: string): string {
   const date = new Date(iso);

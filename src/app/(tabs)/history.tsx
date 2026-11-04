@@ -6,7 +6,7 @@ import { ErrorView } from '@/components/error-view';
 import { Radius, Spacing } from '@/constants/theme';
 import { useRounds } from '@/hooks/use-rounds';
 import { useTheme } from '@/hooks/use-theme';
-import { formatPlayedAt, highScore } from '@/lib/history';
+import { carName, formatPlayedAt, highScore } from '@/lib/history';
 import type { StoredRound } from '@/services/rounds';
 
 export default function HistoryScreen() {
@@ -15,16 +15,15 @@ export default function HistoryScreen() {
 
   function renderRound(round: StoredRound) {
     const date = formatPlayedAt(round.playedAt);
+    const name = carName(round.make, round.model);
     return (
       <Pressable
         onPress={() => router.push({ pathname: '/round/[id]', params: { id: String(round.id) } })}
         accessibilityRole="button"
-        accessibilityLabel={`${round.make} ${round.model}, plate ${round.plate}, total score ${round.total} out of 100, ${date}`}
+        accessibilityLabel={`${name}, plate ${round.plate}, total score ${round.total} out of 100, ${date}`}
         style={[styles.card, { backgroundColor: theme.card }]}>
         <View style={styles.cardText}>
-          <Text style={[styles.bold, { color: theme.text }]}>
-            {round.make} {round.model}
-          </Text>
+          <Text style={[styles.bold, { color: theme.text }]}>{name}</Text>
           <Text style={{ color: theme.textSecondary }}>{round.plate}</Text>
           <Text style={{ color: theme.textSecondary }}>{date}</Text>
         </View>
