@@ -4,6 +4,7 @@ A Dutch licence-plate guessing game: the player types a plate, guesses the vehic
 
 - Expo Router, TanStack Query, expo-sqlite. Must run in Expo Go.
 - Screens in `src/app/`, data through hooks in `src/hooks/`, API and SQL in `src/services/`. Pure logic (plate normalising, real values, scoring) in `src/lib/`, without React.
+- Database: `SQLiteProvider` is in `src/app/_layout.tsx`; the schema and migrations (`PRAGMA user_version`) are in `src/services/database.ts`. All SQL stays in `src/services/` and takes `db` as its first argument; hooks get it from `useSQLiteContext()`.
 - Never force-push, squash or rewrite history. My git history is part of my hand-in.
 
 ## Specs

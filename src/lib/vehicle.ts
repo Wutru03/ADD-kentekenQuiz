@@ -1,3 +1,4 @@
+import type { Coords } from '@/services/location';
 import type { Fuel, Vehicle } from '@/services/rdw';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -43,4 +44,15 @@ export function parseVehicleParam(param: string | string[] | undefined): Vehicle
   } catch {
     return null;
   }
+}
+
+// The coordinates travel as two string route params; null if either is missing or not a number.
+export function parseCoordsParams(
+  latitude: string | string[] | undefined,
+  longitude: string | string[] | undefined,
+): Coords | null {
+  if (typeof latitude !== 'string' || typeof longitude !== 'string') return null;
+  const lat = Number(latitude);
+  const lon = Number(longitude);
+  return Number.isFinite(lat) && Number.isFinite(lon) ? { latitude: lat, longitude: lon } : null;
 }

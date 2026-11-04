@@ -1,15 +1,23 @@
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { Button } from '@/components/button';
 import { ErrorView } from '@/components/error-view';
 import { Radius, Spacing } from '@/constants/theme';
 import { usePlateLookup } from '@/hooks/use-plate-lookup';
 import { useTheme } from '@/hooks/use-theme';
 import { isValidPlate, normalisePlate } from '@/lib/plate';
+import type { Vehicle } from '@/services/rdw';
 
+// "Play again" comes back here with a new roundKey; a new key remounts the form, so it starts empty.
 export default function PlayScreen() {
+  const { roundKey } = useLocalSearchParams<{ roundKey?: string }>();
+  return <PlayForm key={roundKey} />;
+}
+
+function PlayForm() {
   const theme = useTheme();
   const { plate, query, coords, lookUp } = usePlateLookup();
   const [input, setInput] = useState('');
@@ -23,6 +31,12 @@ export default function PlayScreen() {
     }
     setInputError(null);
     lookUp(normalised);
+  }
+
+  function handleGuess(vehicle: Vehicle) {
+    // The coordinates travel as string params; left out when the location is unavailable.
+    const location = coords ? { latitude: String(coords.latitude), longitude: String(coords.longitude) } : {};
+    router.push({ pathname: '/guess', params: { vehicle: JSON.stringify(vehicle), ...location } });
   }
 
   function renderResult() {
@@ -41,12 +55,8 @@ export default function PlayScreen() {
         <Text style={{ color: theme.textSecondary }}>
           {vehicle.colour} · {vehicle.vehicleType}
         </Text>
-        <Pressable
-          onPress={() => router.push({ pathname: '/guess', params: { vehicle: JSON.stringify(vehicle) } })}
-          accessibilityLabel="Guess the stats"
-          style={[styles.button, { backgroundColor: theme.badge }]}>
-          <Text style={{ color: theme.badgeText }}>Guess the stats</Text>
-        </Pressable>
+        {/* undefined = the location is still being looked up; wait, so the round gets its coordinates. */}
+        <Button label="Guess the stats" onPress={() => handleGuess(vehicle)} disabled={coords === undefined} />
       </View>
     );
   }
@@ -67,13 +77,11 @@ export default function PlayScreen() {
           style={[styles.input, { color: theme.text, backgroundColor: theme.backgroundElement }]}
         />
         {inputError && <Text style={[styles.inputError, { color: theme.text }]}>{inputError}</Text>}
-        <Pressable
-          onPress={handleLookUp}
-          accessibilityLabel="Look up"
-          style={[styles.button, { backgroundColor: theme.badge }]}>
-          <Text style={{ color: theme.badgeText }}>Look up</Text>
-        </Pressable>
+        <Button label="Look up" onPress={handleLookUp} />
         {renderResult()}
+        {plate !== null && coords === undefined && (
+          <Text style={{ color: theme.textSecondary }}>Getting location…</Text>
+        )}
         {plate !== null && coords === null && (
           <Text style={{ color: theme.textSecondary }}>
             Location unavailable, this round won&apos;t show on the map
@@ -90,12 +98,6 @@ const styles = StyleSheet.create({
   title: { fontSize: 28, fontWeight: 'bold' },
   input: { fontSize: 20, padding: Spacing.three, borderRadius: Radius.m },
   inputError: { fontWeight: 'bold' },
-  button: {
-    alignItems: 'center',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.two,
-    borderRadius: Radius.s,
-  },
   card: { padding: Spacing.three, borderRadius: Radius.m, gap: Spacing.two },
   make: { fontSize: 22, fontWeight: 'bold' },
 });

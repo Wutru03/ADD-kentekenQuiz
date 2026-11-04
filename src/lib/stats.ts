@@ -10,6 +10,11 @@ export type RealValues = Record<NumberStat, number | null> & { fuel: FuelAnswer 
 
 export type Range = { min: number; max: number; step: number };
 
+// Turns text from the database back into a FuelAnswer, without a cast.
+export function toFuelAnswer(value: string | null): FuelAnswer | null {
+  return FUEL_ANSWERS.find((answer) => answer === value) ?? null;
+}
+
 const COMBUSTION_FUELS = ['Benzine', 'Diesel', 'LPG'];
 
 // RDW fuel rows -> one answer. Anything not in the spec (Waterstof, CNG, ...) is not asked.
@@ -43,6 +48,15 @@ export function realValues(vehicle: Vehicle): RealValues {
     fuel,
   };
 }
+
+// Label and unit per number stat, shared by the guess form and the result.
+export const NUMBER_FIELDS: { stat: NumberStat; label: string; unit: string }[] = [
+  { stat: 'year', label: 'Year', unit: '' },
+  { stat: 'weight', label: 'Empty weight', unit: 'kg' },
+  { stat: 'power', label: 'Power', unit: 'pk' },
+  { stat: 'litres', label: 'Cylinder capacity', unit: 'L' },
+  { stat: 'cylinders', label: 'Cylinders', unit: '' },
+];
 
 // No upper limit (Infinity) for weight, power and cylinders, so trucks and hypercars fit.
 export const NUMBER_RANGES: Record<NumberStat, Range> = {

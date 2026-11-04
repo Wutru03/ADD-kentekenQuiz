@@ -12,11 +12,14 @@ See how close my guesses were, per stat and in total, and keep the round.
 - Fuel: correct = 100, wrong = 0.
 - Total = average of the stats that were asked, rounded, 0-100.
 - The round is saved in SQLite (`expo-sqlite`) on submit, with the location from feature 1. SQL lives in `src/services/`, the hook in `src/hooks/`.
+- The result is revealed with Reanimated: each score has a bar that fills from 0 to its score (0-100), one after the other, and the total score is a last bar at the bottom. The screen scrolls along so the bar that is filling is in view. No animation when the phone has "reduce motion" on.
 
 ## Acceptance Criteria
 
 - [ ] Per asked stat: my guess, the real value, and the score 0-100.
-- [ ] The total score 0-100.
+- [ ] The total score 0-100, at the bottom, after the per-stat scores.
+- [ ] Each score has a bar that fills up from 0 to its score, one stat after the other; the total's bar fills last.
+- [ ] The screen scrolls so each bar is in view while it fills.
 - [ ] The round is in SQLite after submit and is still there after an app restart.
 - [ ] Leaving the form without submitting saves nothing.
 - [ ] Playing the same plate again makes a new round.

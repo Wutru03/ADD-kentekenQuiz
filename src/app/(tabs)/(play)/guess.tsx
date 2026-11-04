@@ -1,25 +1,29 @@
-import { useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { Button } from '@/components/button';
+import { ErrorView } from '@/components/error-view';
 import { StatInput } from '@/components/stat-input';
 import { Radius, Spacing } from '@/constants/theme';
+import { useSaveRound } from '@/hooks/use-save-round';
 import { useTheme } from '@/hooks/use-theme';
-import { FUEL_ANSWERS, type FuelAnswer, NUMBER_RANGES, type NumberStat, realValues } from '@/lib/stats';
-import { parseVehicleParam } from '@/lib/vehicle';
+import { scoreRound } from '@/lib/scoring';
+import {
+  FUEL_ANSWERS,
+  type FuelAnswer,
+  NUMBER_FIELDS,
+  NUMBER_RANGES,
+  type NumberStat,
+  realValues,
+} from '@/lib/stats';
+import { parseCoordsParams, parseVehicleParam } from '@/lib/vehicle';
+import type { Coords } from '@/services/location';
 import type { Vehicle } from '@/services/rdw';
-
-const NUMBER_FIELDS: { stat: NumberStat; label: string; unit: string }[] = [
-  { stat: 'year', label: 'Year', unit: '' },
-  { stat: 'weight', label: 'Empty weight', unit: 'kg' },
-  { stat: 'power', label: 'Power', unit: 'pk' },
-  { stat: 'litres', label: 'Cylinder capacity', unit: 'L' },
-  { stat: 'cylinders', label: 'Cylinders', unit: '' },
-];
 
 export default function GuessScreen() {
   const theme = useTheme();
-  const { vehicle: param } = useLocalSearchParams();
+  const { vehicle: param, latitude, longitude } = useLocalSearchParams();
   const vehicle = parseVehicleParam(param);
 
   if (vehicle === null) {
@@ -29,12 +33,16 @@ export default function GuessScreen() {
       </View>
     );
   }
-  return <GuessForm vehicle={vehicle} />;
+  return <GuessForm vehicle={vehicle} coords={parseCoordsParams(latitude, longitude)} />;
 }
 
 // Separate component so its hooks only run once there is a vehicle.
-function GuessForm({ vehicle }: { vehicle: Vehicle }) {
+function GuessForm({ vehicle, coords }: { vehicle: Vehicle; coords: Coords | null }) {
   const theme = useTheme();
+  const save = useSaveRound();
+  // Set synchronously on the first tap: `disabled` only applies after a re-render, so a quick
+  // double tap would otherwise save the round twice.
+  const submitting = useRef(false);
   const real = realValues(vehicle);
   const [guesses, setGuesses] = useState<Record<NumberStat, number | null>>({
     year: null,
@@ -46,8 +54,39 @@ function GuessForm({ vehicle }: { vehicle: Vehicle }) {
   const [fuel, setFuel] = useState<FuelAnswer | null>(null);
 
   const askedFields = NUMBER_FIELDS.filter((field) => real[field.stat] !== null);
+  const nothingAsked = askedFields.length === 0 && real.fuel === null;
   const canSubmit =
-    askedFields.every((field) => guesses[field.stat] !== null) && (real.fuel === null || fuel !== null);
+    !nothingAsked &&
+    askedFields.every((field) => guesses[field.stat] !== null) &&
+    (real.fuel === null || fuel !== null);
+
+  function handleSubmit() {
+    if (submitting.current) return;
+    submitting.current = true;
+    const allGuesses = { ...guesses, fuel };
+    const { scores, total } = scoreRound(real, allGuesses);
+    save.mutate(
+      {
+        plate: vehicle.plate,
+        make: vehicle.make,
+        model: vehicle.model,
+        playedAt: new Date().toISOString(),
+        coords,
+        real,
+        guesses: allGuesses,
+        scores,
+        total,
+      },
+      {
+        // replace, not push: the form is gone, so Submit cannot be tapped again.
+        onSuccess: (id) => router.replace({ pathname: '/result', params: { id: String(id) } }),
+        // The insert is one statement, so a failed save left no row; "Try again" is safe.
+        onError: () => {
+          submitting.current = false;
+        },
+      },
+    );
+  }
 
   return (
     <ScrollView
@@ -94,14 +133,14 @@ function GuessForm({ vehicle }: { vehicle: Vehicle }) {
         </View>
       )}
 
-      {/* What Submit does is #3. */}
-      <Pressable
-        disabled={!canSubmit}
-        accessibilityLabel="Submit"
-        accessibilityState={{ disabled: !canSubmit }}
-        style={[styles.button, { backgroundColor: canSubmit ? theme.badge : theme.backgroundSelected }]}>
-        <Text style={{ color: canSubmit ? theme.badgeText : theme.textSecondary }}>Submit</Text>
-      </Pressable>
+      <Button
+        label={save.isPending ? 'Saving…' : 'Submit'}
+        onPress={handleSubmit}
+        disabled={!canSubmit || save.isPending}
+      />
+      {save.isError && (
+        <ErrorView message={`Could not save the round: ${save.error.message}`} onRetry={handleSubmit} />
+      )}
     </ScrollView>
   );
 }
@@ -113,10 +152,4 @@ const styles = StyleSheet.create({
   label: { fontWeight: 'bold' },
   fuel: { gap: Spacing.two },
   radio: { paddingHorizontal: Spacing.three, paddingVertical: Spacing.two, borderRadius: Radius.s },
-  button: {
-    alignItems: 'center',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.two,
-    borderRadius: Radius.s,
-  },
 });
