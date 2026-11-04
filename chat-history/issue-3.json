@@ -1,0 +1,1012 @@
+ ▐▛███▛█   Claude Code v2.1.316
+▝▜██████▀  Opus 5.5 · Claude Pro
+ ▝▝   ▝▝   ~/disk/projects/ADD_frontend_dev/ADD-kentekenQuiz
+
+
+❯ <system-reminder>                                                             
+  Linked sessions now (status, not an instruction): cleanup =                   
+  local_20029eb4-4440-4735-80cf-df9e0c052d37 (idle). To message one,            
+  SendMessage with `to` set to its id; list_sessions {"linked": true} has       
+  titles, folders and branches.                                                 
+  </system-reminder>                                                            
+                                                                                
+  Background (from the session that started this one):                          
+  This repo is the user's graded final assignment for Inholland Frontend        
+  Development: Kentekenquiz, an Expo SDK 58 app on main that must run in Expo   
+  Go, due Friday 6 November 2026 at 23:59. Issues #1 and #2 are closed, and #3  
+  adds the SQLite round storage that #4 (History) and #5 (Map) read from. The   
+  graded workflow is one issue per chat, plan on the issue first, wait for go,  
+  and the user must be able to explain every line. The user reviews the diff,   
+  tests on their phone and commits themself with closes #3, with no AI          
+  attribution, and history must never be rewritten. A separate cleanup          
+  (web-only files removed, packages updated) was done just before this; if git  
+  status still shows those changes uncommitted, leave them alone and tell the   
+  user.                                                                         
+                                                                                
+  Task:                                                                         
+  Work on issue #3 (gh issue view 3), spec specs/features/03-score-result.md.   
+  Follow AGENTS.md.                                                             
+                                                                                
+  You may touch:                                                                
+  - src/lib/ (scoring; reuse realValues from stats.ts)                          
+  - src/services/ (SQLite; the columns are under "Data" in specs/product.md)    
+  - src/hooks/ (save hook)                                                      
+  - src/app/(tabs)/(play)/ (Play and guess screens, new result screen)          
+  - src/app/_layout.tsx, only if the database setup needs it                    
+  - src/components/, only for a shared button if I approve question 5           
+  - AGENTS.md (a line saying where the database setup lives, and rules I ask    
+  for)                                                                          
+                                                                                
+  expo-sqlite is already installed. Read the SDK 58 docs for it, as AGENTS.md   
+  says. History (#4) and Map (#5) will read this table later, but don't build   
+  them.                                                                         
+                                                                                
+  First post your plan and a "- [ ]" task list as a comment on issue #3 with gh 
+  issue comment, then stop and wait for my go. Don't build anything yet.        
+                                                                                
+  In the plan, list these as open questions for me to decide, each with your    
+  recommendation:                                                               
+  1. How the coordinates get from usePlateLookup on the Play screen to the      
+  save. Only vehicle goes to /guess today, and coords can still be undefined    
+  when "Guess the stats" is tapped.                                             
+  2. How "Play again" gives an empty plate field, given that the Play screen    
+  stays mounted in the stack and keeps input and plate.                         
+  3. How a double tap on Submit, or "Try again" after a failed save, avoids a   
+  duplicate round.                                                              
+  4. How I can check "still there after an app restart" on my phone before      
+  History (#4) exists.                                                          
+  5. The button style is already copied in the Play and guess screens, and the  
+  result screen needs it too. Should it become a shared component in this       
+  issue?                                                                        
+                                                                                
+  End the task list with what I need to test on my phone in Expo Go.            
+                                                                                
+  Shared notes folder for this group of sessions (outside the repo; read        
+  siblings' notes there, leave hand-over notes or large findings there instead  
+  of pasting them into messages): /home/wouter/.config/Claude/side-session-note 
+  s/local_da655ca7-670a-42b9-8a3d-564d9f98d958                                  
+
+  Read 17 files, ran 2 shell commands (ctrl+o to expand)
+  ⎿  Interrupted · What should Claude do instead?
+
+❯ /model claude-sonnet-5-5                                                      
+  ⎿  Set model to claude-sonnet-5-5
+
+❯ <system-reminder>                                                             
+  Linked sessions now (status, not an instruction): cleanup =                   
+  local_20029eb4-4440-4735-80cf-df9e0c052d37 (idle). To message one,            
+  SendMessage with `to` set to its id; list_sessions {"linked": true} has       
+  titles, folders and branches.                                                 
+  </system-reminder>                                                            
+
+❯ Start again. I switched models.                                               
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Fetch(https://docs.expo.dev/versions/v58.0.0/sdk/sqlite/)
+  ⎿  Received 94.8KB (200 OK)
+
+● Fetch(https://docs.expo.dev/llms.txt)
+  ⎿  Received 56KB (200 OK)
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Fetch(https://docs.expo.dev/router/basics/navigation/)
+  ⎿  Received 12.8KB (200 OK)
+
+  Searched for 1 pattern (ctrl+o to expand)
+
+● Fetch(https://docs.expo.dev/versions/v58.0.0/sdk/router/)
+  ⎿  Received 127.4KB (200 OK)
+
+  Made 1 scratchpad edit +76 (ctrl+o to expand)
+
+● Posting the plan to issue #3 now.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● The plan for #3 is posted as a comment on the issue:
+  https://github.com/Wutru03/ADD-kentekenQuiz/issues/3#issuecomment-6631123614.
+  I changed no repo files and built nothing. I'm waiting for your go.
+
+  What the plan does: Submit scores the guesses in a new pure file,
+  src/lib/scoring.ts, and saves one row in a wide rounds table. It then replaces
+  the guess screen with a result screen that reads that round back by id. The
+  comment lists every file, the table columns and the task list. The task list
+  ends with the Expo Go tests.
+
+  My recommendation for each question:
+  1. Coordinates: pass latitude and longitude as route params next to vehicle.
+     Keep "Guess the stats" disabled until the location has resolved, either to
+     a position or to null. I'd also add a 10 second cap in getCurrentCoords,
+     since it has no timeout today.
+  2. Play again: split Play into an outer screen and an inner PlayForm with a
+     key taken from a route param. "Play again" calls router.dismissTo with a
+     fresh key, which remounts the form empty. I haven't run this, so I still
+     have to confirm dismissTo applies the new param.
+  3. Double tap and Try again: disable Submit while the save is pending and
+     check a useRef flag. Once the save succeeds the guess screen is gone, so
+     Submit can't be tapped again. A failed insert leaves no row, so Try again
+     can't duplicate.
+  4. Restart check: the result screen shows "Round #id saved". After you kill
+     Expo Go, the next round should get the next number, not #1. This needs no
+     extra queries.
+  5. Shared button: yes. Create src/components/button.tsx and use it in Play,
+     Guess, the result screen and error-view.tsx. The error-view.tsx swap is the
+     one edit outside the files you listed.
+  6. Spec gap I found: if no stat can be asked for a vehicle, Submit is enabled
+     with nothing to score. I'd keep Submit disabled in that case.
+
+  git status still shows the cleanup uncommitted (8 files), and I left it alone.
+  AGENTS.md is one of those files, with a deleted expo-env.d.ts line. My later
+  AGENTS.md edit will land on top of that, so commit the cleanup first if you
+  want closes #3 to stay clean.
+
+❯ <system-reminder>                                                             
+  Linked sessions now (status, not an instruction): cleanup =                   
+  local_20029eb4-4440-4735-80cf-df9e0c052d37 (idle). To message one,            
+  SendMessage with `to` set to its id; list_sessions {"linked": true} has       
+  titles, folders and branches.                                                 
+  </system-reminder>                                                            
+
+❯ Go, all recommended                                                           
+
+● Write(src/lib/scoring.ts)
+  ⎿  Wrote 38 lines to src/lib/scoring.ts
+       1 import type { FuelAnswer, NumberStat, RealValues } from '@/lib/s
+         tats';
+       2 
+       3 export type Guesses = Record<NumberStat, number | null> & { fuel
+         : FuelAnswer | null };
+       4 
+       5 // One score per stat, 0-100; null = the stat was not asked.
+       6 export type Scores = Record<NumberStat | 'fuel', number | null>;
+       7 
+       8 // How far off a guess can be before it scores 0.
+     … +30 lines (ctrl+o to expand)
+
+● Write(src/lib/scoring.ts)
+  ⎿  Added 15 lines, removed 6 lines
+      14    cylinders: 2,
+      15  };
+      16  
+      17 -const NUMBER_STATS = Object.keys(SCORE_RANGES) as NumberStat[];
+      17 +const NUMBER_STATS: NumberStat[] = ['year', 'weight', 'power', 
+         +'litres', 'cylinders'];                                        
+      18  
+      19  function scoreNumber(stat: NumberStat, guess: number, real: num
+          ber): number {
+      20    const score = 100 * (1 - Math.abs(guess - real) / SCORE_RANGE
+          S[stat]);
+     ...
+      24  // Only stats with a real value and a guess are scored; the tot
+          al is the rounded average of those.
+      25  export function scoreRound(real: RealValues, guesses: Guesses):
+           { scores: Scores; total: number } {
+      26    const scores: Scores = { year: null, weight: null, power: nul
+          l, litres: null, cylinders: null, fuel: null };
+      27 +  let sum = 0;                                                 
+      28 +  let asked = 0;                                               
+      29  
+      30    for (const stat of NUMBER_STATS) {
+      31      const realValue = real[stat];
+      32      const guess = guesses[stat];
+      31 -    if (realValue !== null && guess !== null) scores[stat] = sc
+         -oreNumber(stat, guess, realValue);                             
+      33 +    if (realValue === null || guess === null) continue;        
+      34 +    const score = scoreNumber(stat, guess, realValue);         
+      35 +    scores[stat] = score;                                      
+      36 +    sum += score;                                              
+      37 +    asked += 1;                                                
+      38    }
+      33 -  if (real.fuel !== null && guesses.fuel !== null) scores.fuel 
+         -= guesses.fuel === real.fuel ? 100 : 0;                        
+      39 +  if (real.fuel !== null && guesses.fuel !== null) {           
+      40 +    const score = guesses.fuel === real.fuel ? 100 : 0;        
+      41 +    scores.fuel = score;                                       
+      42 +    sum += score;                                              
+      43 +    asked += 1;                                                
+      44 +  }                                                            
+      45  
+      35 -  const asked = Object.values(scores).filter((score) => score !
+         -== null);                                                      
+      36 -  const total = asked.length === 0 ? 0 : Math.round(asked.reduc
+         -e((sum, score) => sum + score, 0) / asked.length);             
+      37 -  return { scores, total };                                    
+      46 +  return { scores, total: asked === 0 ? 0 : Math.round(sum / as
+         +ked) };                                                        
+      47  }
+
+  Ran 1 shell command (ctrl+o to expand)
+● Update(src/lib/stats.ts)
+  ⎿  Added 9 lines
+      44    };
+      45  }
+      46  
+      47 +// Label and unit per number stat, shared by the guess form and
+         + the result.                                                   
+      48 +export const NUMBER_FIELDS: { stat: NumberStat; label: string; 
+         +unit: string }[] = [                                           
+      49 +  { stat: 'year', label: 'Year', unit: '' },                   
+      50 +  { stat: 'weight', label: 'Empty weight', unit: 'kg' },       
+      51 +  { stat: 'power', label: 'Power', unit: 'pk' },               
+      52 +  { stat: 'litres', label: 'Cylinder capacity', unit: 'L' },   
+      53 +  { stat: 'cylinders', label: 'Cylinders', unit: '' },         
+      54 +];                                                             
+      55 +                                                               
+      56  // No upper limit (Infinity) for weight, power and cylinders, s
+          o trucks and hypercars fit.
+      57  export const NUMBER_RANGES: Record<NumberStat, Range> = {
+      58    year: { min: 1900, max: new Date().getFullYear(), step: 1 },
+
+● Update(src/lib/vehicle.ts)
+  ⎿  Added 1 line
+      1 +import type { Coords } from '@/services/location';              
+      2  import type { Fuel, Vehicle } from '@/services/rdw';
+      3  
+      4  function isRecord(value: unknown): value is Record<string, unkno
+         wn> {
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(src/lib/stats.ts)
+  ⎿  Added 5 lines
+      10  
+      11  export type Range = { min: number; max: number; step: number };
+      12  
+      13 +// Turns text from the database back into a FuelAnswer, without
+         + a cast.                                                       
+      14 +export function toFuelAnswer(value: string | null): FuelAnswer 
+         +| null {                                                       
+      15 +  return FUEL_ANSWERS.find((answer) => answer === value) ?? nul
+         +l;                                                             
+      16 +}                                                              
+      17 +                                                               
+      18  const COMBUSTION_FUELS = ['Benzine', 'Diesel', 'LPG'];
+      19  
+      20  // RDW fuel rows -> one answer. Anything not in the spec (Water
+          stof, CNG, ...) is not asked.
+
+● Write(src/services/database.ts)
+  ⎿  Wrote 37 lines to src/services/database.ts
+       1 import type { SQLiteDatabase } from 'expo-sqlite';
+       2 
+       3 export const DATABASE_NAME = 'kentekenquiz.db';
+       4 
+       5 // Bump this and add an `if (version === n)` step below when the
+          table changes.
+       6 const DATABASE_VERSION = 1;
+       7 
+       8 // Runs once before the app renders (SQLiteProvider onInit). PRA
+         GMA user_version stores the schema version.
+     … +29 lines (ctrl+o to expand)
+
+● Write(src/services/rounds.ts)
+  ⎿  Wrote 136 lines to src/services/rounds.ts
+       1 import type { SQLiteDatabase } from 'expo-sqlite';
+       2 
+       3 import type { Guesses, Scores } from '@/lib/scoring';
+       4 import { type RealValues, toFuelAnswer } from '@/lib/stats';
+       5 import type { Coords } from '@/services/location';
+       6 
+       7 export type Round = {
+       8   plate: string;
+       9   make: string;
+      10   model: string;
+     … +126 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Scoring, schema and SQL check out against real SQLite. Next: provider, hooks
+  and the shared Button.
+
+● Update(src/app/_layout.tsx)
+  ⎿  Added 5 lines, removed 3 lines
+      15      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : 
+          DefaultTheme}>
+      16        <AnimatedSplashOverlay />
+      17        <QueryClientProvider client={queryClient}>
+      18 -        <Stack>                                                
+      19 -          <Stack.Screen name="(tabs)" options={{ headerShown: f
+         -alse }} />                                                     
+      20 -        </Stack>                                               
+      18 +        <SQLiteProvider databaseName={DATABASE_NAME} onInit={mi
+         +grate}>                                                        
+      19 +          <Stack>                                              
+      20 +            <Stack.Screen name="(tabs)" options={{ headerShown:
+         + false }} />                                                   
+      21 +          </Stack>                                             
+      22 +        </SQLiteProvider>                                      
+      23        </QueryClientProvider>
+      24      </ThemeProvider>
+      25    );
+
+● Update(src/app/_layout.tsx)
+  ⎿  Added 2 lines
+       1  import { QueryClient, QueryClientProvider } from '@tanstack/rea
+          ct-query';
+       2  import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from '
+          expo-router';
+       3  import * as SplashScreen from 'expo-splash-screen';
+       4 +import { SQLiteProvider } from 'expo-sqlite';                  
+       5  import { useColorScheme } from 'react-native';
+       6  
+       7  import { AnimatedSplashOverlay } from '@/components/animated-ic
+          on';
+       8 +import { DATABASE_NAME, migrate } from '@/services/database';  
+       9  
+      10  SplashScreen.preventAutoHideAsync();
+      11  
+
+● Write(src/hooks/use-save-round.ts)
+  ⎿  Wrote 10 lines to src/hooks/use-save-round.ts
+       1 import { useMutation } from '@tanstack/react-query';
+       2 import { useSQLiteContext } from 'expo-sqlite';
+       3 
+       4 import { insertRound, type Round } from '@/services/rounds';
+       5 
+       6 // mutate(round) saves one round; its data is the id of the new 
+         row.
+       7 export function useSaveRound() {
+       8   const db = useSQLiteContext();
+       9   return useMutation({ mutationFn: (round: Round) => insertRound
+     … +2 lines (ctrl+o to expand)
+
+● Write(src/hooks/use-round.ts)
+  ⎿  Wrote 10 lines to src/hooks/use-round.ts
+       1 import { useQuery } from '@tanstack/react-query';
+       2 import { useSQLiteContext } from 'expo-sqlite';
+       3 
+       4 import { getRound } from '@/services/rounds';
+       5 
+       6 // data is null when there is no round with this id.
+       7 export function useRound(id: number) {
+       8   const db = useSQLiteContext();
+       9   return useQuery({ queryKey: ['round', id], queryFn: () => getR
+         ound(db, id) });
+     … +1 line (ctrl+o to expand)
+
+● Write(src/components/button.tsx)
+  ⎿  Wrote 31 lines to src/components/button.tsx
+      1 import { Pressable, StyleSheet, Text } from 'react-native';
+      2 
+      3 import { Radius, Spacing } from '@/constants/theme';
+      4 import { useTheme } from '@/hooks/use-theme';
+      5 
+      6 type Props = { label: string; onPress: () => void; disabled?: boo
+        lean };
+      7 
+      8 export function Button({ label, onPress, disabled = false }: Prop
+        s) {
+     … +23 lines (ctrl+o to expand)
+
+● Write(src/components/error-view.tsx)
+  ⎿  Added 4 lines, removed 6 lines
+      1 -import { Pressable, StyleSheet, Text, View } from 'react-native'
+        -;                                                               
+      1 +import { StyleSheet, Text, View } from 'react-native';          
+      2  
+      3 -import { Radius, Spacing } from '@/constants/theme';            
+      3 +import { Button } from '@/components/button';                   
+      4 +import { Spacing } from '@/constants/theme';                    
+      5  import { useTheme } from '@/hooks/use-theme';
+      6  
+      7  type Props = { message: string; onRetry: () => void };
+     ...
+      12    return (
+      13      <View style={styles.container}>
+      14        <Text style={{ color: theme.text }}>{message}</Text>
+      14 -      <Pressable onPress={onRetry} style={[styles.button, { bac
+         -kgroundColor: theme.badge }]}>                                 
+      15 -        <Text style={{ color: theme.badgeText }}>Try again</Tex
+         -t>                                                             
+      16 -      </Pressable>                                             
+      15 +      <Button label="Try again" onPress={onRetry} />           
+      16      </View>
+      17    );
+      18  }
+      19  
+      20  const styles = StyleSheet.create({
+      21    container: { flex: 1, alignItems: 'center', justifyContent: '
+          center', gap: Spacing.three },
+      23 -  button: { paddingHorizontal: Spacing.three, paddingVertical: 
+         -Spacing.two, borderRadius: Radius.s },                         
+      22  });
+
+● Update(src/services/location.ts)
+  ⎿  Added 8 lines, removed 3 lines
+       2  
+       3  export type Coords = { latitude: number; longitude: number };
+       4  
+       5 -// Null when permission is denied or there is no fix; the round
+         - continues without coordinates.                                
+       5 +const FIX_TIMEOUT_MS = 10_000;                                 
+       6 +                                                               
+       7 +// Null when permission is denied or there is no fix in time; t
+         +he round continues without coordinates.                        
+       8  export async function getCurrentCoords(): Promise<Coords | null
+          > {
+       9    try {
+      10      const { granted } = await Location.requestForegroundPermiss
+          ionsAsync();
+      11      if (!granted) return null;
+      10 -    const { coords } = await Location.getCurrentPositionAsync()
+         -;                                                              
+      11 -    return { latitude: coords.latitude, longitude: coords.longi
+         -tude };                                                        
+      12 +    // Without a cap, no fix (indoors) would keep "Guess the st
+         +ats" disabled for a long time.                                 
+      13 +    const timeout = new Promise<null>((resolve) => setTimeout((
+         +) => resolve(null), FIX_TIMEOUT_MS));                          
+      14 +    const position = await Promise.race([Location.getCurrentPos
+         +itionAsync(), timeout]);                                       
+      15 +    if (position === null) return null;                        
+      16 +    return { latitude: position.coords.latitude, longitude: pos
+         +ition.coords.longitude };                                      
+      17    } catch {
+      18      return null;
+      19    }
+
+● Write(src/app/(tabs)/(play)/index.tsx)
+  ⎿  Added 22 lines, removed 20 lines
+       1 -import { router } from 'expo-router';                          
+       1 +import { router, useLocalSearchParams } from 'expo-router';    
+       2  import { useState } from 'react';
+       3 -import { ActivityIndicator, Pressable, ScrollView, StyleSheet, 
+         -Text, TextInput, View } from 'react-native';                   
+       3 +import { ActivityIndicator, ScrollView, StyleSheet, Text, TextI
+         +nput, View } from 'react-native';                              
+       4  import { SafeAreaView } from 'react-native-safe-area-context';
+       5  
+       6 +import { Button } from '@/components/button';                  
+       7  import { ErrorView } from '@/components/error-view';
+       8  import { Radius, Spacing } from '@/constants/theme';
+       9  import { usePlateLookup } from '@/hooks/use-plate-lookup';
+      10  import { useTheme } from '@/hooks/use-theme';
+      11  import { isValidPlate, normalisePlate } from '@/lib/plate';
+      12  
+      13 +// "Play again" comes back here with a new roundKey; a new key 
+         +remounts the form, so it starts empty.                         
+      14  export default function PlayScreen() {
+      15 +  const { roundKey } = useLocalSearchParams<{ roundKey?: string
+         + }>();                                                         
+      16 +  return <PlayForm key={roundKey} />;                          
+      17 +}                                                              
+      18 +                                                               
+      19 +function PlayForm() {                                          
+      20    const theme = useTheme();
+      21    const { plate, query, coords, lookUp } = usePlateLookup();
+      22    const [input, setInput] = useState('');
+     ...
+      32      lookUp(normalised);
+      33    }
+      34  
+      35 +  function handleGuess() {                                     
+      36 +    if (query.data == null) return;                            
+      37 +    // The coordinates travel as string params; left out when t
+         +he location is unavailable.                                    
+      38 +    const location = coords ? { latitude: String(coords.latitud
+         +e), longitude: String(coords.longitude) } : {};                
+      39 +    router.push({ pathname: '/guess', params: { vehicle: JSON.s
+         +tringify(query.data), ...location } });                        
+      40 +  }                                                            
+      41 +                                                               
+      42    function renderResult() {
+      43      if (plate === null) return null;
+      44      if (query.isPending) return <ActivityIndicator color={theme
+          .text} />;
+     ...
+      55          <Text style={{ color: theme.textSecondary }}>
+      56            {vehicle.colour} · {vehicle.vehicleType}
+      57          </Text>
+      44 -        <Pressable                                             
+      45 -          onPress={() => router.push({ pathname: '/guess', para
+         -ms: { vehicle: JSON.stringify(vehicle) } })}                   
+      46 -          accessibilityLabel="Guess the stats"                 
+      47 -          style={[styles.button, { backgroundColor: theme.badge
+         - }]}>                                                          
+      48 -          <Text style={{ color: theme.badgeText }}>Guess the st
+         -ats</Text>                                                     
+      49 -        </Pressable>                                           
+      58 +        {/* undefined = the location is still being looked up; 
+         +wait, so the round gets its coordinates. */}                   
+      59 +        <Button label="Guess the stats" onPress={handleGuess} d
+         +isabled={coords === undefined} />                              
+      60        </View>
+      61      );
+      62    }
+     ...
+      77            style={[styles.input, { color: theme.text, background
+          Color: theme.backgroundElement }]}
+      78          />
+      79          {inputError && <Text style={[styles.inputError, { color
+          : theme.text }]}>{inputError}</Text>}
+      70 -        <Pressable                                             
+      71 -          onPress={handleLookUp}                               
+      72 -          accessibilityLabel="Look up"                         
+      73 -          style={[styles.button, { backgroundColor: theme.badge
+         - }]}>                                                          
+      74 -          <Text style={{ color: theme.badgeText }}>Look up</Tex
+         -t>                                                             
+      75 -        </Pressable>                                           
+      80 +        <Button label="Look up" onPress={handleLookUp} />      
+      81          {renderResult()}
+      82 +        {plate !== null && coords === undefined && (           
+      83 +          <Text style={{ color: theme.textSecondary }}>Getting 
+         +location…</Text>                                               
+      84 +        )}                                                     
+      85          {plate !== null && coords === null && (
+      86            <Text style={{ color: theme.textSecondary }}>
+      87              Location unavailable, this round won&apos;t show on
+           the map
+     ...
+       98    title: { fontSize: 28, fontWeight: 'bold' },
+       99    input: { fontSize: 20, padding: Spacing.three, borderRadius:
+            Radius.m },
+      100    inputError: { fontWeight: 'bold' },
+       93 -  button: {                                                   
+       94 -    alignItems: 'center',                                     
+       95 -    paddingHorizontal: Spacing.three,                         
+       96 -    paddingVertical: Spacing.two,                             
+       97 -    borderRadius: Radius.s,                                   
+       98 -  },                                                          
+      101    card: { padding: Spacing.three, borderRadius: Radius.m, gap:
+            Spacing.two },
+      102    make: { fontSize: 22, fontWeight: 'bold' },
+      103  });
+
+● Update(src/app/(tabs)/(play)/index.tsx)
+  ⎿  Added 2 lines, removed 3 lines
+      32      lookUp(normalised);
+      33    }
+      34  
+      35 -  function handleGuess() {                                     
+      36 -    if (query.data == null) return;                            
+      35 +  function handleGuess(vehicle: Vehicle) {                     
+      36      // The coordinates travel as string params; left out when t
+          he location is unavailable.
+      37      const location = coords ? { latitude: String(coords.latitud
+          e), longitude: String(coords.longitude) } : {};
+      39 -    router.push({ pathname: '/guess', params: { vehicle: JSON.s
+         -tringify(query.data), ...location } });                        
+      38 +    router.push({ pathname: '/guess', params: { vehicle: JSON.s
+         +tringify(vehicle), ...location } });                           
+      39    }
+      40  
+      41    function renderResult() {
+
+● Update(src/app/(tabs)/(play)/index.tsx)
+  ⎿  Added 1 line, removed 1 line
+      55            {vehicle.colour} · {vehicle.vehicleType}
+      56          </Text>
+      57          {/* undefined = the location is still being looked up; 
+          wait, so the round gets its coordinates. */}
+      58 -        <Button label="Guess the stats" onPress={handleGuess} d
+         -isabled={coords === undefined} />                              
+      58 +        <Button label="Guess the stats" onPress={() => handleGu
+         +ess(vehicle)} disabled={coords === undefined} />               
+      59        </View>
+      60      );
+      61    }
+
+● Update(src/app/(tabs)/(play)/index.tsx)
+  ⎿  Added 1 line
+       9  import { usePlateLookup } from '@/hooks/use-plate-lookup';
+      10  import { useTheme } from '@/hooks/use-theme';
+      11  import { isValidPlate, normalisePlate } from '@/lib/plate';
+      12 +import type { Vehicle } from '@/services/rdw';                 
+      13  
+      14  // "Play again" comes back here with a new roundKey; a new key 
+          remounts the form, so it starts empty.
+      15  export default function PlayScreen() {
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Write(src/app/(tabs)/(play)/result.tsx)
+  ⎿  Wrote 105 lines to src/app/(tabs)/(play)/result.tsx
+       1 import { router, useLocalSearchParams } from 'expo-router';
+       2 import { ActivityIndicator, ScrollView, StyleSheet, Text, View }
+          from 'react-native';
+       3 
+       4 import { Button } from '@/components/button';
+       5 import { ErrorView } from '@/components/error-view';
+       6 import { Radius, Spacing } from '@/constants/theme';
+       7 import { useRound } from '@/hooks/use-round';
+       8 import { useTheme } from '@/hooks/use-theme';
+       9 import { NUMBER_FIELDS } from '@/lib/stats';
+     … +96 lines (ctrl+o to expand)
+
+● Update(src/app/(tabs)/(play)/_layout.tsx)
+  ⎿  Added 2 lines
+       6      <Stack>
+       7        <Stack.Screen name="index" options={{ headerShown: false 
+          }} />
+       8        <Stack.Screen name="guess" options={{ title: 'Guess' }} /
+          >
+       9 +      {/* The only way out is "Play again", so no back button o
+         +r swipe back. */}                                              
+      10 +      <Stack.Screen name="result" options={{ title: 'Result', h
+         +eaderBackVisible: false, gestureEnabled: false }} />           
+      11      </Stack>
+      12    );
+      13  }
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Typecheck flagged stale generated route types and a too-narrow row type in
+  result.tsx. I'm fixing the row type first, then regenerating the route types. 
+  · summary
+
+● Update(src/app/(tabs)/(play)/result.tsx)
+  ⎿  Added 4 lines, removed 2 lines
+      14    return unit === '' ? String(value) : `${value} ${unit}`;
+      15  }
+      16  
+      17 +type StatRow = { key: string; label: string; guess: string; rea
+         +l: string; score: number | null };                             
+      18 +                                                               
+      19  // One row per stat that was asked (it has a real value), in th
+          e order of the guess form.
+      18 -function statRows(round: StoredRound) {                        
+      19 -  const rows = NUMBER_FIELDS.filter((field) => round.real[field
+         -.stat] !== null).map((field) => ({                             
+      20 +function statRows(round: StoredRound): StatRow[] {             
+      21 +  const rows: StatRow[] = NUMBER_FIELDS.filter((field) => round
+         +.real[field.stat] !== null).map((field) => ({                  
+      22      key: field.stat,
+      23      label: field.label,
+      24      guess: formatValue(round.guesses[field.stat], field.unit),
+
+  Searched for 1 pattern, ran 4 shell commands (ctrl+o to expand)
+
+● Update(AGENTS.md)
+  ⎿  Added 1 line
+       4  
+       5  - Expo Router, TanStack Query, expo-sqlite. Must run in Expo Go
+          .
+       6  - Screens in `src/app/`, data through hooks in `src/hooks/`, AP
+          I and SQL in `src/services/`. Pure logic (plate normalising, re
+          al values, scoring) in `src/lib/`, without React.
+       7 +- Database: `SQLiteProvider` is in `src/app/_layout.tsx`; the s
+         +chema and migrations (`PRAGMA user_version`) are in `src/servic
+         +es/database.ts`. All SQL stays in `src/services/` and takes `db
+         +` as its first argument; hooks get it from `useSQLiteContext()`
+         +.                                                              
+       8  - Never force-push, squash or rewrite history. My git history i
+          s part of my hand-in.
+       9  
+      10  ## Specs
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Issue #3 is built with all six recommendations. npx expo lint and npx tsc 
+  --noEmit are clean, but I haven't run the app on a device, so none of the
+  phone tests have been done. Nothing is committed, so you can review the diff
+  first.
+
+  I ticked the finished tasks in the plan comment on #3. The phone tests and the
+  light/dark and largest-text check are still open there.
+
+  What I built
+  - Scoring: src/lib/scoring.ts is pure logic with the ranges from the spec. A
+    throwaway Node script gave the expected scores for an exact guess, a far-off
+    guess, rounding, a wrong fuel and skipped stats. I did not commit that
+    script.
+  - Database: src/services/database.ts has the rounds table, a migration using
+    PRAGMA user_version, and the SQLiteProvider in src/app/_layout.tsx.
+    src/services/rounds.ts holds insertRound and getRound. I ran the table SQL
+    and the 25-placeholder INSERT against real SQLite in Node.
+  - Hooks: use-save-round.ts and use-round.ts.
+  - Play screen: it passes latitude and longitude to the guess screen. "Guess
+    the stats" stays disabled with "Getting location…" until the location is
+    known. getCurrentCoords now gives up after 10 s.
+  - Play again: the Play screen is remounted through a roundKey param.
+  - Guess screen: Submit scores the round and saves it. A useRef guard stops a
+    double tap from saving twice. A failed save shows the error with "Try
+    again". On success the screen is replaced by the result.
+  - Result screen: it shows your guess, the real value and the score per asked
+    stat, the total, "Round #N saved" and "Play again".
+  - Shared Button: src/components/button.tsx is used in Play, Guess, the result
+    screen and error-view.tsx.
+  - Q6: Submit stays disabled when no stat can be asked.
+  - AGENTS.md: one line on where the database setup lives.
+
+  Not verified
+  - dismissTo and the new roundKey: I haven't confirmed that "Play again" really
+    empties the Play screen. If it doesn't, the fallback is router.dismissAll()
+    plus router.setParams(...).
+  - Android back button: gestureEnabled: false and the hidden back button may
+    not stop the hardware back button on Android, which would go back to Play
+    with the old vehicle still shown.
+
+  Failed-save test: in src/services/rounds.ts, temporarily change INSERT INTO 
+  rounds ( to INSERT INTO roundz (. Submit should then show the error and "Try
+  again". Revert the edit afterwards.
+
+❯ <system-reminder>                                                             
+  Linked sessions now (status, not an instruction): cleanup =                   
+  local_20029eb4-4440-4735-80cf-df9e0c052d37 (idle). To message one,            
+  SendMessage with `to` set to its id; list_sessions {"linked": true} has       
+  titles, folders and branches.                                                 
+  </system-reminder>                                                            
+
+❯ Pressing the submit button does nothing. I already restarted it with npx expo 
+  start -c                                                                      
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+
+● Trying to reproduce the Submit problem in a browser build, since I can't see
+  your phone. First I'll see whether the page loads.
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+
+● I couldn't reproduce this. The web build can't load expo-sqlite (it needs a
+  wasm setup this project doesn't have), and I can't see your phone. So I
+  haven't changed any code for this yet.
+
+  What I know:
+  - The save path and its SQL work against real SQLite in Node.
+  - Lint and tsc are clean.
+  - If the save fails, the error appears below the Submit button, which can sit
+    off-screen.
+
+  Four checks, each pointing to a different cause:
+  1. Greyed out? Is Submit greyed out (dark grey in light mode)? If so,
+     canSubmit is false, for example a fuel not picked or a field not blurred.
+  2. Label flips? Does the label flip to "Saving…" for a moment? If it never
+     does, the tap isn't reaching handleSubmit.
+  3. Error text? Scroll down below the Submit button. Is there a "Could not save
+     the round: …" message? Please send me its text.
+  4. Metro output? Is there any red box or output in the terminal where npx expo
+     start -c runs? A line about /result or a SQLite error would settle it.
+
+❯ <system-reminder>                                                             
+  Linked sessions now (status, not an instruction): cleanup =                   
+  local_20029eb4-4440-4735-80cf-df9e0c052d37 (idle). To message one,            
+  SendMessage with `to` set to its id; list_sessions {"linked": true} has       
+  titles, folders and branches.                                                 
+  </system-reminder>                                                            
+
+❯ 1. submit turns green after filling in everything                             
+  2. label does not flip                                                        
+  3. No error text                                                              
+  4. no logs in the terminal                                                    
+
+● Submit is enabled and nothing errors, so either the tap never reaches
+  handleSubmit or the save succeeds and the navigation silently doesn't happen.
+  I'm adding a temporary on-screen debug line to tell which. I'll remove it
+  afterwards.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● I added a temporary debug line under the Submit button in guess.tsx. I haven't
+  run it, so I don't know yet what it will show. Reload the app and press
+  Submit once. Then send me the text after "DEBUG:". It will contain one of
+  these:
+
+  - No tap: the press never reaches the handler.
+  - tap then saved id=N, calling replace: the save works and the navigation to
+    the result screen is what fails.
+  - tap then error …: the save itself fails.
+  - tap (blocked=true): the double-tap guard is wrongly blocking.
+
+  I'll remove the debug line once we know. A backup of the file is in the
+  scratchpad.
+
+❯ <system-reminder>                                                             
+  Linked sessions now (status, not an instruction): cleanup =                   
+  local_20029eb4-4440-4735-80cf-df9e0c052d37 (idle). To message one,            
+  SendMessage with `to` set to its id; list_sessions {"linked": true} has       
+  titles, folders and branches.                                                 
+  </system-reminder>                                                            
+
+❯ Remove debug line, I needed to reload on the android phone in the expo go     
+  app.                                                                          
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● I removed the temporary debug line and guess.tsx is back to the version from
+  before it. npx expo lint and npx tsc --noEmit are both clean.
+
+  I didn't change any code to fix Submit. Your reload on the phone suggests the
+  app was running a stale bundle, but I can't confirm that from here. I haven't
+  seen Submit save a round and open the result myself.
+
+  If Submit still does nothing after the reload, tell me and I'll put the debug
+  line back. The rest of the phone tests are still open on the issue.
+❯ <system-reminder>                                                             
+  Linked sessions now (status, not an instruction): cleanup =                   
+  local_20029eb4-4440-4735-80cf-df9e0c052d37 (idle). To message one,            
+  SendMessage with `to` set to its id; list_sessions {"linked": true} has       
+  titles, folders and branches.                                                 
+  </system-reminder>                                                            
+
+❯ Could you add a bar at each score that fills up sequentially one by one so    
+  you see the score in a bar from 0 to 100 and then after all scores are        
+  revealed it does a final one for the total score at the bottom.               
+
+  Searched for 1 pattern (ctrl+o to expand)
+
+● Write(src/components/score-bar.tsx)
+  ⎿  Wrote 34 lines to src/components/score-bar.tsx
+       1 import { useEffect } from 'react';
+       2 import { StyleSheet, View } from 'react-native';
+       3 import Animated, { useAnimatedStyle, useSharedValue, withDelay, 
+         withTiming } from 'react-native-reanimated';
+       4 
+       5 import { Radius, Spacing } from '@/constants/theme';
+       6 import { useTheme } from '@/hooks/use-theme';
+       7 
+       8 const FILL_MS = 500;
+       9 
+     … +25 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● The result screen now has a score bar under each stat, and the total card
+  moved to the bottom with its own bar. Lint and tsc are clean, but I haven't
+  seen it run on your phone, so the timing is untested.
+
+  - Bars: the new ScoreBar in score-bar.tsx fills from 0 to the score over 0.5
+    s. Colours come from the theme.
+  - Order: in result.tsx each bar starts 0.7 s after the previous one, so there
+    is a short pause between bars. The total's bar starts after the last stat
+    bar.
+  - Score text: the numbers ("Score: 75 / 100", total) are visible from the
+    start, and only the bars animate. I can hide the total's number until its
+    bar fills if you want a bigger reveal.
+  - Scrolling: bars below the fold fill while off-screen, so the player
+    scrolling down may only see them already full. The reveal timing is a single
+    constant, BAR_STEP_MS, if you want it slower.
+  - Reduce motion: the animation is skipped when the phone has "reduce motion"
+    on.
+
+  The #3 spec doesn't mention an animation, and AGENTS.md says the spec is the
+  source of truth. I haven't edited the spec, so add a line to
+  specs/features/03-score-result.md if you want it covered there.
+
+❯ <system-reminder>                                                             
+  Linked sessions now (status, not an instruction): cleanup =                   
+  local_20029eb4-4440-4735-80cf-df9e0c052d37 (idle). To message one,            
+  SendMessage with `to` set to its id; list_sessions {"linked": true} has       
+  titles, folders and branches.                                                 
+  </system-reminder>                                                            
+
+❯ Make the screen scroll so each animation is in frame when it happens.         
+
+  Searched for 1 pattern, listed 1 directory, ran 2 shell commands (ctrl+o to expand)
+
+❯ Add it to the spec                                                            
+
+● Update(specs/features/03-score-result.md)
+  ⎿  Added 1 line
+      12  - Fuel: correct = 100, wrong = 0.
+      13  - Total = average of the stats that were asked, rounded, 0-100.
+      14  - The round is saved in SQLite (`expo-sqlite`) on submit, with 
+          the location from feature 1. SQL lives in `src/services/`, the 
+          hook in `src/hooks/`.
+      15 +- The result is revealed with Reanimated: each score has a bar 
+         +that fills from 0 to its score (0-100), one after the other, an
+         +d the total score is a last bar at the bottom. The screen scrol
+         +ls along so the bar that is filling is in view. No animation wh
+         +en the phone has "reduce motion" on.                           
+      16  
+      17  ## Acceptance Criteria
+      18  
+
+● Update(specs/features/03-score-result.md)
+  ⎿  Added 3 lines, removed 1 line
+      17  ## Acceptance Criteria
+      18  
+      19  - [ ] Per asked stat: my guess, the real value, and the score 0
+          -100.
+      20 -- [ ] The total score 0-100.                                   
+      20 +- [ ] The total score 0-100, at the bottom, after the per-stat 
+         +scores.                                                        
+      21 +- [ ] Each score has a bar that fills up from 0 to its score, o
+         +ne stat after the other; the total's bar fills last.           
+      22 +- [ ] The screen scrolls so each bar is in view while it fills.
+      23  - [ ] The round is in SQLite after submit and is still there af
+          ter an app restart.
+      24  - [ ] Leaving the form without submitting saves nothing.
+      25  - [ ] Playing the same plate again makes a new round.
+
+● The result screen now scrolls so each bar is in view while it fills, and the
+  spec describes the bars and the scrolling. npx expo lint and npx tsc --noEmit
+  are clean. I haven't run any of this on your phone yet.
+
+  - Scrolling: in result.tsx, when a bar starts filling the screen scrolls only
+    if that card's bottom would be out of frame. When the total's bar starts, it
+    scrolls to the end, so the total and "Play again" are visible.
+  - Spec: in 03-score-result.md I added a constraint on the Reanimated reveal
+    (bars one after the other, total last, scrolling along, no animation with
+    "reduce motion"). I also added acceptance lines for the bars, the total at
+    the bottom and the scrolling. Reduce motion is a Reanimated default that I
+    haven't tested.
+  - Issue body: I didn't edit it, so the acceptance list there no longer matches
+    the spec. Say if you want it updated.
+
+❯ <system-reminder>                                                             
+  Linked sessions now (status, not an instruction): cleanup =                   
+  local_20029eb4-4440-4735-80cf-df9e0c052d37 (idle). To message one,            
+  SendMessage with `to` set to its id; list_sessions {"linked": true} has       
+  titles, folders and branches.                                                 
+  </system-reminder>                                                            
+
+❯ everything works, commit and push. also export this chat to the chat exports  
+  folder.                                                                       
+
+  Ran 1 shell command (ctrl+o to expand)
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Export converted to readable text (86 KB, no email or keys in it). Checking
+  that your messages are all in there, then I'll write it to the chat-history
+  folder and commit.
+
+  Pushed to main, ran 2 shell commands (ctrl+o to expand)
+
+● Both commits are pushed to main, and issue #3 closed automatically from closes
+  #3.
+
+  - 520bcd0 "Add scoring, SQLite round storage and animated result screen": the
+    whole feature, the shared Button, the AGENTS.md line and the spec update.
+    The message has no Claude attribution.
+  - 96d497f "Add chat history for issue 3": the chat export in
+    chat-history/2026-11-04-issue-3.txt.
+
+  About the export: /export is a terminal command I can't run, and the session
+  export I can run produces a 2.3 MB raw zip. I turned that into readable text
+  in the same style as your issue-1 file, named like it with a date prefix. It
+  leaves out system prompts and hidden reasoning, cuts tool output at 1,200
+  characters, and holds the whole chat, including the Submit debugging. Two
+  small gaps:
+  - Your "Add it to the spec" message is missing from it.
+  - The opening prompt appears twice.
+
+  The chat-history README asks for issue-<N>.json via /export. If you want the
+  real /export for the graded hand-in, run it in a Claude Code terminal session
+  and replace my file.
+
+  The phone-test boxes in the plan comment on the issue are still unticked. Tick
+  them there once you've gone through the list. Light/dark mode and largest
+  text size are the ones I never confirmed with you.
+
+❯ <system-reminder>                                                             
+  Linked sessions now (status, not an instruction): cleanup =                   
+  local_20029eb4-4440-4735-80cf-df9e0c052d37 (idle). To message one,            
+  SendMessage with `to` set to its id; list_sessions {"linked": true} has       
+  titles, folders and branches.                                                 
+  </system-reminder>                                                            
+
+❯ give me a terminal command to export this chat to that folder                 
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● /export only exists inside an interactive Claude Code session, so a single
+  non-interactive terminal command can't do it. This opens this session in the
+  terminal:
+
+  cd ~/disk/projects/ADD_frontend_dev/ADD-kentekenQuiz && claude --resume
+  13af0bb1-4f28-4363-8c13-14184ef06a4f
+
+  Once it is open, type this, with the filename the chat-history README asks
+  for:
+
+  /export chat-history/issue-3.json
+
+  I haven't run /export myself. I believe it accepts a filename, but I haven't
+  confirmed that. If it doesn't, it asks where to save or prints the chat. Then
+  save it into that folder under that name.
+
+  I would not copy the raw session file instead. It is
+  ~/.claude/projects/-home-wouter-disk-projects-ADD-frontend-dev-ADD-kentekenQui
+  z/13af0bb1-4f28-4363-8c13-14184ef06a4f.jsonl, 2.3 MB. It holds the full system
+  prompts and your email address, and the repo is public.
+
+  If you use /export, delete my text version first and commit the new file
+  instead: chat-history/2026-11-04-issue-3.txt.
+
+● Remote Control not started here · another Claude Code on this machine 
+  (started 34m ago) already has Remote Control for this conversation, so
+  this terminal can't see your sessions on other machines and they 
+  can't reach it · run /remote-control to move it to this terminal
