@@ -26,18 +26,18 @@ each stat.
 
 ## Acceptance Criteria
 
-- [ ] The car's make and model are shown above the form.
-- [ ] Inputs per stat:
+- [x] The car's make and model are shown above the form.
+- [x] Inputs per stat:
   - Year: number field, 1900 to the current year.
   - Weight: number field, whole kg, 0 or more.
   - Power: number field, whole pk, 0 or more.
   - Cylinder capacity: number field, 0.0-8.0 L (1 decimal).
   - Cylinders: number field, whole number, 0 or more.
   - Fuel: radio buttons Petrol, Diesel, Electric, LPG, Hybrid.
-- [ ] All number fields and fuel start empty.
-- [ ] When a field loses focus, a number outside its range is clamped to the nearest min or max and rounded to its step (whole number, or 1 decimal for litres).
-- [ ] Stats with a missing real value are not shown.
-- [ ] "Submit" is disabled until every shown stat has a value, and stays disabled when no stat can be asked. What Submit does is feature 3.
+- [x] All number fields and fuel start empty.
+- [x] When a field loses focus, a number outside its range is clamped to the nearest min or max and rounded to its step (whole number, or 1 decimal for litres).
+- [x] Stats with a missing real value are not shown.
+- [x] "Submit" is disabled until every shown stat has a value, and stays disabled when no stat can be asked. What Submit does is feature 3.
 
 ## Out of Scope
 

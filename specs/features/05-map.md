@@ -17,13 +17,13 @@ See on one map where I spotted all the cars I played.
 
 ## Acceptance Criteria
 
-- [ ] One pin per round that has coordinates.
-- [ ] Tapping a pin shows plate, make and model, and total score.
-- [ ] From that pin the round detail (feature 4) opens.
-- [ ] The map fits all pins on open.
-- [ ] No rounds with coordinates shows an empty state "No rounds with a location yet."
-- [ ] Loading and error state while the rounds load.
-- [ ] A deleted round disappears from the map.
+- [x] One pin per round that has coordinates.
+- [x] Tapping a pin shows plate, make and model, and total score.
+- [x] From that pin the round detail (feature 4) opens.
+- [x] The map fits all pins on open.
+- [x] No rounds with coordinates shows an empty state "No rounds with a location yet."
+- [x] Loading and error state while the rounds load.
+- [x] A deleted round disappears from the map.
 
 ## Out of Scope
 

@@ -42,22 +42,22 @@ Enter a plate and guess the car's stats.
 
 ## Technical core
 
-- [ ] Runs in Expo Go
-- [ ] Live data through TanStack Query
-- [ ] At least 2 screens with Expo Router
-- [ ] Something in SQLite that survives a restart
-- [ ] Loading and error state on every load
-- [ ] One native feature: location, captured on plate lookup, shown on the Map tab
-- [ ] TypeScript and ESLint without errors
-- [ ] UI, data and logic in separate files
+- [x] Runs in Expo Go
+- [x] Live data through TanStack Query
+- [x] At least 2 screens with Expo Router
+- [x] Something in SQLite that survives a restart
+- [x] Loading and error state on every load
+- [x] One native feature: location, captured on plate lookup, shown on the Map tab
+- [x] TypeScript and ESLint without errors
+- [x] UI, data and logic in separate files
 
 ## Optional
 
-- [ ] Clean TypeScript: no `any`, no `as` casts, no `@ts-ignore`
-- [ ] No warnings: no `console.log`, none in the terminal or on screen
-- [ ] Dark mode: every screen looks right, all colours from the theme
+- [x] Clean TypeScript: no `any`, no `as` casts, no `@ts-ignore`
+- [x] No warnings: no `console.log`, none in the terminal or on screen
+- [x] Dark mode: every screen looks right, all colours from the theme
 - [ ] Design: a consistent own style with your own font
-- [ ] Accessibility: button labels, largest text size
+- [x] Accessibility: button labels, largest text size
 - [x] CI: lint and tsc on every push
 
 ## Out of scope

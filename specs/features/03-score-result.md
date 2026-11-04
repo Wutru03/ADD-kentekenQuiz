@@ -16,16 +16,16 @@ See how close my guesses were, per stat and in total, and keep the round.
 
 ## Acceptance Criteria
 
-- [ ] Per asked stat: my guess, the real value, and the score 0-100.
-- [ ] The total score 0-100, at the bottom, after the per-stat scores.
-- [ ] Each score has a bar that fills up from 0 to its score, one stat after the other; the total's bar fills last.
-- [ ] The screen scrolls so each bar is in view while it fills.
-- [ ] The round is in SQLite after submit and is still there after an app restart.
-- [ ] The result shows "Round #<id> saved", with the id from the database.
-- [ ] Leaving the form without submitting saves nothing.
-- [ ] Playing the same plate again makes a new round.
-- [ ] A "Play again" button goes back to an empty plate field.
-- [ ] A failed save shows an error with "Try again".
+- [x] Per asked stat: my guess, the real value, and the score 0-100.
+- [x] The total score 0-100, at the bottom, after the per-stat scores.
+- [x] Each score has a bar that fills up from 0 to its score, one stat after the other; the total's bar fills last.
+- [x] The screen scrolls so each bar is in view while it fills.
+- [x] The round is in SQLite after submit and is still there after an app restart.
+- [x] The result shows "Round #<id> saved", with the id from the database.
+- [x] Leaving the form without submitting saves nothing.
+- [x] Playing the same plate again makes a new round.
+- [x] A "Play again" button goes back to an empty plate field.
+- [x] A failed save shows an error with "Try again".
 
 ## Out of Scope
 

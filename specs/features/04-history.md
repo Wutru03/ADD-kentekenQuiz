@@ -14,13 +14,13 @@ Look back at the cars I played, see my high score, and open or delete a round.
 
 ## Acceptance Criteria
 
-- [ ] The high score (highest total) on top.
-- [ ] Rounds newest first: make and model, plate, total score, date.
-- [ ] No rounds yet shows an empty state "No rounds yet. Look up a plate to play."
-- [ ] Tapping a round opens its detail: per stat guess, real value and score, plus the total, date and plate.
-- [ ] The detail has "Delete round"; it asks for confirmation, then removes the round and goes back. List and high score update.
-- [ ] A round with coordinates has a "View on map" button that opens the Map tab with that round's card, zoomed to its pin (feature 5). A round without coordinates has no button.
-- [ ] Loading and error state on the list and the detail.
+- [x] The high score (highest total) on top.
+- [x] Rounds newest first: make and model, plate, total score, date.
+- [x] No rounds yet shows an empty state "No rounds yet. Look up a plate to play."
+- [x] Tapping a round opens its detail: per stat guess, real value and score, plus the total, date and plate.
+- [x] The detail has "Delete round"; it asks for confirmation, then removes the round and goes back. List and high score update.
+- [x] A round with coordinates has a "View on map" button that opens the Map tab with that round's card, zoomed to its pin (feature 5). A round without coordinates has no button.
+- [x] Loading and error state on the list and the detail.
 
 ## Out of Scope
 

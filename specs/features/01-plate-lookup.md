@@ -16,14 +16,14 @@ start a round. The place where I look it up is remembered for the map.
 
 ## Acceptance Criteria
 
-- [ ] A text field for the plate and a "Look up" button.
-- [ ] Input is normalised before use: uppercase, everything but letters and digits removed (`25-hg-rj` becomes `25HGRJ`).
-- [ ] After normalising, anything other than exactly 6 letters/digits shows an inline error "A Dutch plate has 6 letters and digits" and sends no request.
-- [ ] A plate the API does not know (`[]`) shows "No vehicle found for this plate".
-- [ ] While loading a spinner is shown; a network error shows the message and a "Try again" button.
-- [ ] A found vehicle shows make, model, first colour and vehicle type, then the player continues to the guess form.
-- [ ] While the location is being looked up, "Getting location…" shows and "Guess the stats" is disabled, so the round gets its coordinates.
-- [ ] On lookup the current location is captured. Permission denied or no fix shows the note "Location unavailable, this round won't show on the map" and the game continues without coordinates.
+- [x] A text field for the plate and a "Look up" button.
+- [x] Input is normalised before use: uppercase, everything but letters and digits removed (`25-hg-rj` becomes `25HGRJ`).
+- [x] After normalising, anything other than exactly 6 letters/digits shows an inline error "A Dutch plate has 6 letters and digits" and sends no request.
+- [x] A plate the API does not know (`[]`) shows "No vehicle found for this plate".
+- [x] While loading a spinner is shown; a network error shows the message and a "Try again" button.
+- [x] A found vehicle shows make, model, first colour and vehicle type, then the player continues to the guess form.
+- [x] While the location is being looked up, "Getting location…" shows and "Guess the stats" is disabled, so the round gets its coordinates.
+- [x] On lookup the current location is captured. Permission denied or no fix shows the note "Location unavailable, this round won't show on the map" and the game continues without coordinates.
 
 ## Out of Scope
 
