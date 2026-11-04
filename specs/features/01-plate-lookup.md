@@ -7,10 +7,10 @@ start a round. The place where I look it up is remembered for the map.
 
 ## Constraints
 
-- Lives on the Play tab, `src/app/(tabs)/index.tsx`, the first step of the Play stack.
+- Lives on the Play tab, `src/app/(tabs)/(play)/index.tsx`, the first step of the Play stack.
 - Both RDW endpoints (`m9d7-ebf2` and `8ys7-d773`) through TanStack Query, keyed on the normalised plate. Fetch code in `src/services/`, hook in `src/hooks/`.
 - Any vehicle type is allowed (car, motorbike, truck, ...).
-- Location with `expo-location` (install with `npx expo install`), foreground permission only, asked the first time a plate is looked up.
+- Location with `expo-location` (install with `npx expo install`), foreground permission only, asked the first time a plate is looked up. A fix that takes longer than 10 seconds counts as no fix.
 - Normalising and validating the plate is pure logic, outside the screen.
 - Colours and spacing from `src/constants/theme.ts`.
 
@@ -22,6 +22,7 @@ start a round. The place where I look it up is remembered for the map.
 - [ ] A plate the API does not know (`[]`) shows "No vehicle found for this plate".
 - [ ] While loading a spinner is shown; a network error shows the message and a "Try again" button.
 - [ ] A found vehicle shows make, model, first colour and vehicle type, then the player continues to the guess form.
+- [ ] While the location is being looked up, "Getting location…" shows and "Guess the stats" is disabled, so the round gets its coordinates.
 - [ ] On lookup the current location is captured. Permission denied or no fix shows the note "Location unavailable, this round won't show on the map" and the game continues without coordinates.
 
 ## Out of Scope

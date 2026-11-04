@@ -37,7 +37,7 @@ each stat.
 - [ ] All number fields and fuel start empty.
 - [ ] When a field loses focus, a number outside its range is clamped to the nearest min or max and rounded to its step (whole number, or 1 decimal for litres).
 - [ ] Stats with a missing real value are not shown.
-- [ ] "Submit" is disabled until every shown stat has a value. What Submit does is feature 3.
+- [ ] "Submit" is disabled until every shown stat has a value, and stays disabled when no stat can be asked. What Submit does is feature 3.
 
 ## Out of Scope
 
