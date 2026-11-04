@@ -31,7 +31,6 @@ A Dutch licence-plate guessing game: the player types a plate, guesses the vehic
 - All colours from `src/constants/theme.ts` through `useTheme()`, never hard-coded hex in a screen or component. Every screen must look right in light and dark mode.
 - Spacing and radius from `Spacing` and `Radius` in the theme.
 - Every pressable and input has an `accessibilityLabel`; layouts must survive the largest text size.
-- `tsc` needs `expo-env.d.ts`, which `npx expo start` generates. It is gitignored on purpose.
 
 ---
 
