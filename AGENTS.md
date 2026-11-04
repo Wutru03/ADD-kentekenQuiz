@@ -19,7 +19,7 @@ A Dutch licence-plate guessing game: the player types a plate, guesses the vehic
 3. Build in small steps and tick off the tasks on the issue.
 4. Run `npx expo lint` and `npx tsc --noEmit` before saying you are done.
 5. Explain what you built when I ask, line by line if needed.
-6. I commit myself with `closes #<n>`. Do not add AI attribution to commits.
+6. Commit only when I say so, with `closes #<n>`. Do not add AI attribution to commits.
 
 ## Rules
 
@@ -32,6 +32,9 @@ A Dutch licence-plate guessing game: the player types a plate, guesses the vehic
 - All colours from `src/constants/theme.ts` through `useTheme()`, never hard-coded hex in a screen or component. Every screen must look right in light and dark mode.
 - Spacing and radius from `Spacing` and `Radius` in the theme.
 - Every pressable and input has an `accessibilityLabel`; layouts must survive the largest text size.
+- Number stats are plain number fields, never sliders. Sliders broke for vehicles outside their range (#2).
+- RDW's model name can already start with the make. Show make and model together with `carName` from `src/lib/history.ts`, so the make is not doubled (#4).
+- Behaviour I add during review goes into the feature spec in the same change, so the spec keeps matching the app.
 
 ---
 
