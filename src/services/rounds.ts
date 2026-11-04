@@ -92,11 +92,7 @@ export async function insertRound(db: SQLiteDatabase, round: Round): Promise<num
   return result.lastInsertRowId;
 }
 
-// Returns null when there is no round with this id.
-export async function getRound(db: SQLiteDatabase, id: number): Promise<StoredRound | null> {
-  const row = await db.getFirstAsync<RoundRow>('SELECT * FROM rounds WHERE id = ?', [id]);
-  if (!row) return null;
-
+function toStoredRound(row: RoundRow): StoredRound {
   return {
     id: row.id,
     plate: row.plate,
@@ -133,4 +129,20 @@ export async function getRound(db: SQLiteDatabase, id: number): Promise<StoredRo
     },
     total: row.total_score,
   };
+}
+
+// Returns null when there is no round with this id.
+export async function getRound(db: SQLiteDatabase, id: number): Promise<StoredRound | null> {
+  const row = await db.getFirstAsync<RoundRow>('SELECT * FROM rounds WHERE id = ?', [id]);
+  return row ? toStoredRound(row) : null;
+}
+
+// Newest first; the id breaks a tie between two rounds with the same played_at.
+export async function listRounds(db: SQLiteDatabase): Promise<StoredRound[]> {
+  const rows = await db.getAllAsync<RoundRow>('SELECT * FROM rounds ORDER BY played_at DESC, id DESC');
+  return rows.map(toStoredRound);
+}
+
+export async function deleteRound(db: SQLiteDatabase, id: number): Promise<void> {
+  await db.runAsync('DELETE FROM rounds WHERE id = ?', [id]);
 }

@@ -20,6 +20,7 @@ export default function RootLayout() {
         <SQLiteProvider databaseName={DATABASE_NAME} onInit={migrate}>
           <Stack>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="round/[id]" options={{ title: 'Round' }} />
           </Stack>
         </SQLiteProvider>
       </QueryClientProvider>
