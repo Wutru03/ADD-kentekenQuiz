@@ -13,6 +13,8 @@ npx expo start
 
 Scan the QR code with Expo Go.
 
+On Android, if Expo Go shows `Cannot find native module 'ExpoSQLite'`, force stop Expo Go and scan again. This seems to happen when Expo Go still has another project open.
+
 ## Check
 
 ```bash
