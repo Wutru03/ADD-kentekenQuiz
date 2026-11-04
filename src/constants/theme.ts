@@ -15,6 +15,7 @@ export const Colors = {
     card: '#FFFFFF',
     badge: '#2E7D5B',
     badgeText: '#FFFFFF',
+    error: '#B3261E',
   },
   dark: {
     text: '#F2F4F5',
@@ -25,6 +26,7 @@ export const Colors = {
     card: '#202529',
     badge: '#347A59',
     badgeText: '#FFFFFF',
+    error: '#FF8A80',
   },
 } as const;
 

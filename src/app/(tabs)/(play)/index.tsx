@@ -76,7 +76,7 @@ function PlayForm() {
           accessibilityLabel="Licence plate"
           style={[styles.input, { color: theme.text, backgroundColor: theme.backgroundElement }]}
         />
-        {inputError && <Text style={[styles.inputError, { color: theme.text }]}>{inputError}</Text>}
+        {inputError && <Text style={[styles.inputError, { color: theme.error }]}>{inputError}</Text>}
         <Button label="Look up" onPress={handleLookUp} />
         {renderResult()}
         {plate !== null && coords === undefined && (
